@@ -1,0 +1,63 @@
+---
+openapi: 3.0.1
+info:
+  title: API V1
+  version: v1
+paths:
+  "/conversations":
+    get:
+      summary: list conversations
+      tags:
+      - Conversations
+      responses:
+        '200':
+          description: successful
+    post:
+      summary: create conversation
+      tags:
+      - Conversations
+      parameters: []
+      responses:
+        '201':
+          description: created
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+              required: []
+  "/conversations/{id}":
+    delete:
+      summary: delete conversation
+      tags:
+        - Conversations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: deleted
+    get:
+      summary: get conversation
+      tags:
+        - Conversations
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: successful
+servers:
+- url: http://localhost:4000
+  variables:
+    defaultHost:
+      default: www.example.com

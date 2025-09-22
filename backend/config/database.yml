@@ -9,6 +9,10 @@ default: &default
 development:
   <<: *default
 
+test:
+  <<: *default
+  database: <%= ENV.fetch("POSTGRES_TEST_DB", "app_test") %>
+
 production:
   primary: &primary_production
     <<: *default
