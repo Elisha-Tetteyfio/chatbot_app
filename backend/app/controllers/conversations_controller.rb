@@ -10,7 +10,7 @@ class ConversationsController < ApplicationController
 
   # GET /conversations/1
   def show
-    render json: @conversation
+    render json: @conversation, include: :messages
   end
 
   # POST /conversations
