@@ -2,27 +2,44 @@ import { Box, Button, List, ListItem, ListItemIcon, ListItemText } from "@mui/ma
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { Delete } from "@mui/icons-material";
 
-export default function Conversations() {
-  const items = ["Conversation 1", "Conversation 2"];
+type ConversationProps = {
+  id: number;
+  title: string;
+  created_at: string;
+  updated_at: string;
+};
 
+type Props = {
+  items: ConversationProps[];
+  currentConversation: ConversationProps | null;
+  onAdd: () => void;
+  onDelete: (id: number) => void;
+  onSelect: (conversation: ConversationProps) => void;
+};
+
+export default function Conversations({items, currentConversation, onAdd, onDelete, onSelect}: Props) {
   return (
-    <Box className="w-[25%] h-full">
+    <Box className="w-[25%] h-full flex flex-col gap-4">
       <Button
         variant="contained"
         startIcon={<AddCircleOutlineIcon />}
-        sx={{background: "#eaddff", color: "#21005D", height:"56px", width: "100%", borderRadius: "16px", minWidth: "80px", fontWeight: "500"}}
+        sx={{background: "#eaddff", color: "#21005d", height:"56px", width: "100%", borderRadius: "16px", minWidth: "80px", fontWeight: "500"}}
+        onClick={()=>onAdd()}
       >
         Conversations
       </Button>
 
       <List>
-        {items.map((c,i)=>(
+        {items.map((item)=>(
           <ListItem
-            sx={{background: "#eaddff", color: "#21005D", height:"56px", width: "100%", borderRadius: "16px", minWidth: "80px", fontWeight: "500", margin:"4px"}}
-            key={i}
-           >
-            <ListItemText>{c}</ListItemText>
-            <ListItemIcon><Delete /></ListItemIcon>
+            key={item.id}
+            sx={{background: currentConversation?.id === item.id ? "#d8b4fe" : "#e8def8", cursor: "pointer", color: "#21005D", height:"56px", width: "100%", borderRadius: "16px", minWidth: "80px", fontWeight: "500", margin:"4px 0"}}
+            onClick={() => onSelect(item)}
+          >
+            <ListItemText>{item.title}</ListItemText>
+            <ListItemIcon
+              onClick={(e) => {e.stopPropagation(); onDelete(item.id)}}
+            ><Delete /></ListItemIcon>
           </ListItem>
         ))}
       </List>
