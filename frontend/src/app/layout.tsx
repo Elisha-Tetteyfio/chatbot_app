@@ -25,9 +25,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="en" className="h-screen">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full flex flex-col`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full flex flex-col flex-1`}
       >
         <AppRouterCacheProvider options={{ key: 'css' }}>
           <AppBar className="flex py-[16px] px-[8px] bg-[#ffffff]"
@@ -36,7 +36,7 @@ export default function RootLayout({
               CHATBOT
             </div>
           </AppBar>
-          <Box sx={{flex: 1}}>
+          <Box className="h-full flex-1 min-h-0">
             {children}
           </Box>
         </AppRouterCacheProvider>

@@ -7,8 +7,8 @@ import { useEffect, useState } from "react";
 type ConversationProps = {
   id: number;
   title: string;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
 };
 
 export default function Home() {
@@ -50,7 +50,7 @@ export default function Home() {
   }
 
   return (
-    <Box className="flex p-4 h-[100%] gap-4">
+    <Box className="flex p-4 h-full min-h-0 gap-4 flex-1">
       <Conversations
         items={conversations}
         currentConversation={currentConversation}
@@ -58,7 +58,7 @@ export default function Home() {
         onDelete={deleteConversation}
         onSelect={setCurrentConversation}
       ></Conversations>
-      <Chat></Chat>
+      <Chat conversation={currentConversation}></Chat>
     </Box>
   );
 }

@@ -5,8 +5,8 @@ import { Delete } from "@mui/icons-material";
 type ConversationProps = {
   id: number;
   title: string;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
 };
 
 type Props = {

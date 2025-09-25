@@ -2,9 +2,7 @@ class MessagesController < ApplicationController
   before_action :set_conversation
 
   def index
-    @messages = Message.all
-
-    render json: @messages
+    render json: @conversation.messages.order(:created_at)
   end
 
   def create
