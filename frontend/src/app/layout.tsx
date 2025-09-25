@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
+import { AppBar, Box } from "@mui/material";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,12 +25,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className="h-full">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-full flex flex-col`}
       >
-        <AppRouterCacheProvider>
-          {children}
+        <AppRouterCacheProvider options={{ key: 'css' }}>
+          <AppBar className="flex py-[16px] px-[8px] bg-[#ffffff]"
+            sx={{backgroundColor: "#ffffff", position: "static" }}>
+            <div className="flex justify-center items-center w-[50px] h-[48px] left-[21px] rounded-lg bg-[#65558F] static text-[8px]">
+              CHATBOT
+            </div>
+          </AppBar>
+          <Box sx={{flex: 1}}>
+            {children}
+          </Box>
         </AppRouterCacheProvider>
       </body>
     </html>
