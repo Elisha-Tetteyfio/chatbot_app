@@ -1,5 +1,6 @@
 'use client'
-import { Box } from "@mui/material";
+import { Box, Drawer, IconButton } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
 import Chat from "./components/Chat";
 import Conversations from "./components/Conversations";
 import { useEffect, useState } from "react";
@@ -15,6 +16,7 @@ export default function Home() {
   const [conversations, setConversations] = useState<ConversationProps[]>([]);
   const [currentConversation, setCurrentConversation] = useState<ConversationProps | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     async function fetchConversations() {
@@ -30,7 +32,6 @@ export default function Home() {
         setIsLoading(false);
       }
     }
-
     fetchConversations();
   }, []);
 
@@ -59,16 +60,46 @@ export default function Home() {
   }
 
   return (
-    <Box className="flex p-4 h-full min-h-0 gap-4 flex-1">
-      <Conversations
-        items={conversations}
-        currentConversation={currentConversation}
-        onAdd={addConversation}
-        onDelete={deleteConversation}
-        onSelect={setCurrentConversation}
-        loading={isLoading}
-      ></Conversations>
-      <Chat conversation={currentConversation}></Chat>
+    <Box className="flex p-4 h-full min-h-0 gap-4 flex-1 relative">
+      <Box className="hidden md:block w-[25%] flex-shrink-0">
+        <Conversations
+          items={conversations}
+          currentConversation={currentConversation}
+          onAdd={addConversation}
+          onDelete={deleteConversation}
+          onSelect={(conversation) => {
+            setCurrentConversation(conversation);
+          }}
+          loading={isLoading}
+        />
+      </Box>
+
+      <Drawer anchor="left" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+        <Box className="w-[80vw] max-w-[300px] p-4">
+          <Conversations
+            items={conversations}
+            currentConversation={currentConversation}
+            onAdd={addConversation}
+            onDelete={deleteConversation}
+            onSelect={(conv) => {
+              setCurrentConversation(conv);
+              setDrawerOpen(false);
+            }}
+            loading={isLoading}
+          />
+        </Box>
+      </Drawer>
+
+      <Chat
+        conversation={currentConversation}
+        menuButton={
+          <Box className="md:hidden">
+            <IconButton onClick={() => setDrawerOpen(true)}>
+              <MenuIcon />
+            </IconButton>
+          </Box>
+        }
+      />
     </Box>
   );
 }

@@ -20,7 +20,7 @@ type Props = {
 
 export default function Conversations({items, currentConversation, onAdd, onDelete, onSelect, loading}: Props) {
   return (
-    <Box className="w-[25%] h-full flex flex-col gap-4">
+    <Box className="w-[100%] h-full flex flex-col gap-4">
       <Button
         variant="contained"
         startIcon={<AddCircleOutlineIcon />}

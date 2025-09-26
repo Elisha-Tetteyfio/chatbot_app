@@ -16,12 +16,14 @@ type MessageProps = {
   content: string;
 };
 
-export default function Chat({conversation}: { conversation:ConversationProps | null }) {
+export default function Chat({conversation, menuButton}: { conversation:ConversationProps | null; menuButton?: React.ReactNode }) {
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const [input, setInput] = useState('');
   const [isAwaitingResponse, setIsAwaitingResponse] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
 
   async function sendMessage() {
     if (input.trim()) {
@@ -69,9 +71,14 @@ export default function Chat({conversation}: { conversation:ConversationProps | 
       className="p-0 bg-white rounded-2xl flex flex-col flex-1"
       sx={{ minHeight: 0 }}
     >
-      <Box className="flex gap-3 items-center py-4 px-4">
-        <Avatar src="bot_avatar.png"></Avatar>
-        <div>Chatbot</div>
+      <Box className="flex justify-between items-center py-4 px-4">
+        <Box className="flex gap-3 items-center">
+          <Avatar src="bot_avatar.png"></Avatar>
+          <div>Chatbot</div>
+        </Box>
+        <Box className="md:hidden">
+          {menuButton}
+        </Box>
       </Box>
       <Divider></Divider>
       {isLoading? (
