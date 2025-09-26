@@ -1,6 +1,7 @@
-import { Box, Button, CircularProgress, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
+import { Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import { Delete } from "@mui/icons-material";
+import { useState } from "react";
 
 type ConversationProps = {
   id: number;
@@ -19,6 +20,7 @@ type Props = {
 };
 
 export default function Conversations({items, currentConversation, onAdd, onDelete, onSelect, loading}: Props) {
+  const [deleteTarget, setDeleteTarget] = useState<ConversationProps | null>(null);
   return (
     <Box className="w-[100%] h-full flex flex-col gap-4">
       <Button
@@ -42,12 +44,54 @@ export default function Conversations({items, currentConversation, onAdd, onDele
             >
               <ListItemText>{item.title}</ListItemText>
               <ListItemIcon
-                onClick={(e) => {e.stopPropagation(); onDelete(item.id)}}
+                onClick={(e) => {e.stopPropagation(); setDeleteTarget(item)}}
               ><Delete /></ListItemIcon>
             </ListItem>
           ))}
         </List>
       }
+      <Dialog
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        sx={{width: '400px', borderRadius: '48px', textAlign: 'center', background: '#fef7ff', margin: 'auto'}}
+        PaperProps={{
+          sx: {
+            width: 400,
+            borderRadius: "24px",
+            textAlign: "center",
+            background: "#fef7ff"
+          },
+        }}
+        BackdropProps={{
+          sx: {
+            backgroundColor: "#18132b36",
+            backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        <DialogContent>
+          <DialogContentText color="#1d1b20">
+            Are you sure you want to delete{" "}{deleteTarget?.title}?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: "center", gap: 2 }}>
+          <Button
+            onClick={() => setDeleteTarget(null)}
+            sx={{background: "#e8def8", padding: '8px 16px', borderRadius: '16px', color: '#1d192b', width: '40%'}}>Cancel</Button>
+          <Button
+            color="error"
+            sx={{background: "#b3261e", padding: '8px 16px', borderRadius: '16px', color: '#ffffff', width: '40%'}}
+            onClick={() => {
+              if (deleteTarget) {
+                onDelete(deleteTarget.id);
+              }
+              setDeleteTarget(null);
+            }}
+          >
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
