@@ -14,15 +14,24 @@ type ConversationProps = {
 export default function Home() {
   const [conversations, setConversations] = useState<ConversationProps[]>([]);
   const [currentConversation, setCurrentConversation] = useState<ConversationProps | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/conversations`)
-      .then((res) => res.json())
-      .then((data) => {
+    async function fetchConversations() {
+      setIsLoading(true);
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/conversations`);
+        const data = await response.json();
         setConversations(data);
         if (data.length > 0) setCurrentConversation(data[0]);
-      })
-      .catch(console.error);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchConversations();
   }, []);
 
   async function addConversation() {
@@ -57,6 +66,7 @@ export default function Home() {
         onAdd={addConversation}
         onDelete={deleteConversation}
         onSelect={setCurrentConversation}
+        loading={isLoading}
       ></Conversations>
       <Chat conversation={currentConversation}></Chat>
     </Box>

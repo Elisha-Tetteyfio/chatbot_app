@@ -1,4 +1,4 @@
-import { Avatar, Box, Divider, IconButton, InputAdornment, TextField } from "@mui/material";
+import { Avatar, Box, CircularProgress, Divider, IconButton, InputAdornment, TextField } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import Message from "./Message";
 import { SendOutlined } from "@mui/icons-material";
@@ -21,6 +21,7 @@ export default function Chat({conversation}: { conversation:ConversationProps | 
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const [input, setInput] = useState('');
   const [isAwaitingResponse, setIsAwaitingResponse] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   async function sendMessage() {
     if (input.trim()) {
@@ -45,20 +46,23 @@ export default function Chat({conversation}: { conversation:ConversationProps | 
   };
 
   useEffect(() => {
-    if (!conversation) return;
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/conversations/${conversation.id}/messages`)
-      .then((res) => res.json())
-      .then(setMessages)
-      .catch(console.error);
+    if (!conversation) {setIsLoading(true); return};
+    
+    async function getMessages(){
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/conversations/${conversation?.id}/messages`)
+        .then((res) => res.json())
+        .then(setMessages)
+        .catch(console.error);
+      
+      setIsLoading(false)
+    }
+
+    getMessages()
   }, [conversation]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  if(!conversation){
-    return <div className="flex-1 flex items-center justify-center italic text-2xl text-[#f0d1f9]">No conversation selected</div>;
-  }
 
   return (
     <Box
@@ -70,59 +74,78 @@ export default function Chat({conversation}: { conversation:ConversationProps | 
         <div>Chatbot</div>
       </Box>
       <Divider></Divider>
-      <Box className="flex-1 min-h-0 overflow-y-auto">
-        <Box className="flex justify-center px-4 py-2">{new Date(conversation?.created_at).toLocaleString('en-US', {month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'})}</Box>
-        {messages.map((message) => (
-          <Message sender={message.sender} message={message.content} key={message.id}></Message>
-        ))}
-        <div ref={bottomRef} />
-      </Box>
+      {isLoading? (
+        <Box className="flex justify-center items-center flex-1 min-h-[100px] color-[#65558f]">
+          <CircularProgress size={'48px'} color="inherit" className="text-[#65558f]"/>
+        </Box>
+      ) : (
+        <>
+          <Box className="flex-1 min-h-0 overflow-y-auto">
+            <Box className="flex justify-center px-4 py-2">
+              { 
+                conversation?.created_at
+                  ? new Date(conversation.created_at).toLocaleString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                  : "—"
+              }
+            </Box>
+            {messages.map((message) => (
+              <Message sender={message.sender} message={message.content} key={message.id}></Message>
+            ))}
+            <div ref={bottomRef} />
+          </Box>
 
-      <Box className="flex items-center gap-3 px-4 py-2 min-h-[44px] border-none">
-        <TextField
-          disabled={isAwaitingResponse}
-          fullWidth
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Reply to Chatbot"
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              sendMessage();
-            }
-          }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={sendMessage} edge="end" disabled={!input.trim()}>
-                  <SendOutlined color={input.trim() ? 'primary' : 'disabled'} />
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-          sx={{
-            backgroundColor: '#ece6f0',
-            minHeight: '44px',
-            borderRadius: '28px',
-            '& .MuiOutlinedInput-notchedOutline': {
-              border: 'none',
-            },
-            '& .MuiInputBase-input': {
-              padding: '10px 16px',
-            },
-            transition: 'box-shadow 0.2s, border 0.2s',
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '28px',
-              '& fieldset': {
-                border: input ? '1px solid #79747e' : 'transparent',
-              },
-              '&:hover fieldset': {
-                border: input ? '1px solid #79747e' : 'transparent',
-              },
-            },
-          }}
-        />
-      </Box>
+          <Box className="flex items-center gap-3 px-4 py-2 min-h-[44px] border-none">
+            <TextField
+              disabled={isAwaitingResponse}
+              fullWidth
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Reply to Chatbot"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  sendMessage();
+                }
+              }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton onClick={sendMessage} edge="end" disabled={!input.trim()}>
+                      <SendOutlined color={input.trim() ? 'primary' : 'disabled'} />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                backgroundColor: '#ece6f0',
+                minHeight: '44px',
+                borderRadius: '28px',
+                '& .MuiOutlinedInput-notchedOutline': {
+                  border: 'none',
+                },
+                '& .MuiInputBase-input': {
+                  padding: '10px 16px',
+                },
+                transition: 'box-shadow 0.2s, border 0.2s',
+                '& .MuiOutlinedInput-root': {
+                  borderRadius: '28px',
+                  '& fieldset': {
+                    border: input ? '1px solid #79747e' : 'transparent',
+                  },
+                  '&:hover fieldset': {
+                    border: input ? '1px solid #79747e' : 'transparent',
+                  },
+                },
+              }}
+            />
+          </Box>
+        </>
+      )}
     </Box>
   );
 }
