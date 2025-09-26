@@ -1,6 +1,7 @@
-import { Avatar, Box, Divider } from "@mui/material";
+import { Avatar, Box, Divider, IconButton, InputAdornment, TextField } from "@mui/material";
 import { useEffect, useRef, useState } from "react";
 import Message from "./Message";
+import { SendOutlined } from "@mui/icons-material";
 
 type ConversationProps = {
   id: number;
@@ -17,7 +18,23 @@ type MessageProps = {
 
 export default function Chat({conversation}: { conversation:ConversationProps | null }) {
   const [messages, setMessages] = useState<MessageProps[]>([]);
-   const bottomRef = useRef<HTMLDivElement | null>(null);
+  const bottomRef = useRef<HTMLDivElement | null>(null);
+  const [input, setInput] = useState('');
+
+  async function sendMessage() {
+    if (input.trim()) {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/conversations/${conversation?.id}/messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: input, sender: 'user' }),
+      });
+      if (res.ok) {
+        const newMessage = await res.json();
+        setMessages((prev) => [...prev, newMessage]);
+      }
+      setInput('');
+    }
+  };
 
   useEffect(() => {
     if (!conversation) return;
@@ -32,7 +49,7 @@ export default function Chat({conversation}: { conversation:ConversationProps | 
   }, [messages]);
 
   if(!conversation){
-     return <div className="flex-1 flex items-center justify-center italic text-2xl text-[#f0d1f9]">No conversation selected</div>;
+    return <div className="flex-1 flex items-center justify-center italic text-2xl text-[#f0d1f9]">No conversation selected</div>;
   }
 
   return (
@@ -48,9 +65,54 @@ export default function Chat({conversation}: { conversation:ConversationProps | 
       <Box className="flex-1 min-h-0 overflow-y-auto">
         <Box className="flex justify-center px-4 py-2">{new Date(conversation?.created_at).toLocaleString('en-US', {month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'})}</Box>
         {messages.map((message) => (
-          <Message sender={message.sender} message={message.content}></Message>
+          <Message sender={message.sender} message={message.content} key={message.id}></Message>
         ))}
         <div ref={bottomRef} />
+      </Box>
+
+      <Box className="flex items-center gap-3 px-4 py-2 min-h-[44px] border-none">
+        <TextField
+          fullWidth
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Reply to Chatbot"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              sendMessage();
+            }
+          }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={sendMessage} edge="end" disabled={!input.trim()}>
+                  <SendOutlined color={input.trim() ? 'primary' : 'disabled'} />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+          sx={{
+            backgroundColor: '#ece6f0',
+            minHeight: '44px',
+            borderRadius: '28px',
+            '& .MuiOutlinedInput-notchedOutline': {
+              border: 'none',
+            },
+            '& .MuiInputBase-input': {
+              padding: '10px 16px',
+            },
+            transition: 'box-shadow 0.2s, border 0.2s',
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '28px',
+              '& fieldset': {
+                border: input ? '1px solid #79747e' : 'transparent',
+              },
+              '&:hover fieldset': {
+                border: input ? '1px solid #79747e' : 'transparent',
+              },
+            },
+          }}
+        />
       </Box>
     </Box>
   );

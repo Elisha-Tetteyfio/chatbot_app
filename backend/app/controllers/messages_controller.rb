@@ -9,7 +9,7 @@ class MessagesController < ApplicationController
     @message = @conversation.messages.build(message_params)
     
     if @message.save
-      render json: @conversation, include: :messages, status: :created
+      render json: @message, status: :created
     else
       render json: @message.errors, status: :unprocessable_entity
     end
