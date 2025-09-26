@@ -20,19 +20,27 @@ export default function Chat({conversation}: { conversation:ConversationProps | 
   const [messages, setMessages] = useState<MessageProps[]>([]);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const [input, setInput] = useState('');
+  const [isAwaitingResponse, setIsAwaitingResponse] = useState(false);
 
   async function sendMessage() {
     if (input.trim()) {
+      setIsAwaitingResponse(true);
+      setMessages((prev) => [...prev, 
+        { content: input, sender: 'user', id: -1 },
+        { content: "* * *", sender: 'bot', id: -2},
+      ]);
+      setInput('');
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/conversations/${conversation?.id}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ content: input, sender: 'user' }),
       });
       if (res.ok) {
-        const newMessage = await res.json();
-        setMessages((prev) => [...prev, newMessage]);
+        const newMessages = await res.json();
+        setMessages(newMessages);
       }
-      setInput('');
+      setIsAwaitingResponse(false);
     }
   };
 
@@ -72,6 +80,7 @@ export default function Chat({conversation}: { conversation:ConversationProps | 
 
       <Box className="flex items-center gap-3 px-4 py-2 min-h-[44px] border-none">
         <TextField
+          disabled={isAwaitingResponse}
           fullWidth
           value={input}
           onChange={(e) => setInput(e.target.value)}

@@ -9,7 +9,9 @@ class MessagesController < ApplicationController
     @message = @conversation.messages.build(message_params)
     
     if @message.save
-      render json: @message, status: :created
+      sleep(2)
+      @conversation.messages.create(sender: 'bot', content: 'This is an AI generated response.')
+      render json: @conversation.messages, status: :created
     else
       render json: @message.errors, status: :unprocessable_entity
     end

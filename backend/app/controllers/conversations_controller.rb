@@ -18,6 +18,7 @@ class ConversationsController < ApplicationController
     @conversation = Conversation.new(conversation_params)
 
     if @conversation.save
+      @conversation.messages.create(sender: 'bot', content: 'How can I help you today?')
       render json: @conversation, status: :created, location: @conversation
     else
       render json: @conversation.errors, status: :unprocessable_entity
